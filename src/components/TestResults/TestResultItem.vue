@@ -1,14 +1,7 @@
 <script>
 export default {
-  name: "TestItem",
-  emits: ["startTest"],
-  props: ["name", "subject", "difficulty", "duration", "questions", "id"],
-
-  methods: {
-    startTest(testId) {
-      this.$emit("startTest", testId)
-    },
-  }
+  name: "TestResultItem",
+  props: ["name", "subject", "difficulty", "startingTime", "endingTime", "result"],
 }
 </script>
 
@@ -18,9 +11,9 @@ export default {
     <div class="card-body">
       <h4 class="card-title">{{ subject }}</h4>
       <p class="card-text"><span class="card-text-bold">Difficulty: </span>{{ difficulty }}</p>
-      <p class="card-text"><span class="card-text-bold">Duration: </span>{{ duration }} min</p>
-      <p class="card-text"><span class="card-text-bold">Number of questions: </span>{{ questions.length }}</p>
-      <a @click="startTest(id)" class="btn btn-success">Start test</a>
+      <p class="card-text"><span class="card-text-bold">Starting time: </span>{{ startingTime }}</p>
+      <p class="card-text"><span class="card-text-bold">Ending time: </span>{{ endingTime }}</p>
+      <p class="card-text"><span class="card-text-bold">Result: </span>{{ result }} %</p>
     </div>
   </div>
 </template>
@@ -41,9 +34,5 @@ export default {
 
 .card {
   opacity: 94%;
-}
-
-a {
-  color: white;
 }
 </style>

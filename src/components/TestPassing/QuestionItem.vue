@@ -1,9 +1,29 @@
 <script>
+import QuestionDao from "@/service/QuestionDao";
 export default {
   name: "QuestionItem",
   props: [
-      "testName", "questionText"
-  ]
+    "testName", "question"
+  ],
+  data() {
+    return {
+      answers: []
+    }
+  },
+  methods: {
+    async fetchAnswers() {
+      const response = await QuestionDao.getAnswersByQuestionId(this.question.id)
+      this.answers = response.data;
+    },
+  },
+  watch: {
+    question: {
+      immediate: true,
+      handler() {
+        this.fetchAnswers();
+      },
+    },
+  },
 }
 </script>
 
@@ -12,21 +32,15 @@ export default {
     <div class="card">
       <h5 class="card-header">{{ testName }}</h5>
       <div class="card-body"><h6 class="card-title">Question </h6>
-        <h4 class="card-text">{{ questionText }}</h4>
+        <h4 class="card-text">{{ question.text }}</h4>
         <br>
         <form method="post" action="#">
           <div id="radio-btn-group">
-            <input type="radio" id="0" name="answer0" value="всесвітній">
-            <label for="0">всесвітній</label><br>
-
-            <input type="radio" id="1" name="answer0" value="поясний">
-            <label for="1">поясний</label><br>
-
-            <input type="radio" id="2" name="answer0" value="місцевий">
-            <label for="2">місцевий</label><br>
-
-            <input type="radio" id="3" name="answer0" value="літній">
-            <label for="3">літній</label><br>
+            <div v-for="(answer, index) in answers" :key="index" class="answer-item">
+              <input type="radio" :id="index" name="answer" :value="answer.text" />
+              <label :for="index">{{ answer.text }}</label>
+              <br/>
+            </div>
           </div>
 
           <button type="submit" class="btn btn-primary">Submit</button>
@@ -35,7 +49,6 @@ export default {
       </div>
     </div>
   </div>
-
 </template>
 
 <style scoped>
@@ -44,5 +57,19 @@ export default {
   color: rgb(5, 5, 5);
   width: 70vw;
   height: 70vh;
+}
+
+.answer-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px; /* Adjust the margin as needed */
+}
+
+input[type="radio"] {
+  margin-right: 5px; /* Adjust the margin as needed */
+}
+
+label {
+  margin: 0;
 }
 </style>

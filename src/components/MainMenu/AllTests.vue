@@ -1,15 +1,21 @@
 <script>
 import TestItem from "@/components/MainMenu/TestItem.vue";
-import axios from "axios";
+import UserNameFormModal from "@/components/MainMenu/UserNameFormModal.vue";
+import TestDao from "@/service/TestDao";
+import UserDao from "@/service/UserDao";
+import UserTestDao from "@/service/UserTestDao";
 
 export default {
   name: "AllTests",
   components: {
+    UserNameFormModal,
     TestItem
   },
   data() {
     return {
-      testsData: []
+      testsData: [],
+      showUserNameFormModal: false,
+      testToOpenId: ""
     };
   },
   created() {
@@ -17,13 +23,8 @@ export default {
   },
   methods: {
     async fetchTestsData() {
-      try {
-        const response = await axios.get("https://localhost:7003/api/tests");
-        this.testsData = response.data;
-        console.log(this.testsData);
-      } catch (error) {
-        console.error("Error fetching tests:", error.toString());
-      }
+      const response = await TestDao.getAllTests();
+      this.testsData = response.data;
     },
     sortBy(criteria) {
       this.testsData.sort((a, b) => {
@@ -39,6 +40,15 @@ export default {
         }
       });
     },
+    startTestEvent(testId) {
+      this.showUserNameFormModal = true;
+      this.testToOpenId = testId;
+    },
+    async openTest(userName) {
+      const userId = await UserDao.createUser(userName);
+      await UserTestDao.createUserTest(userId, this.testToOpenId);
+      window.open('http://localhost:8080/pass-test?testId=' + this.testToOpenId + '&userId=' + userId, "_self")
+    }
   }
 }
 </script>
@@ -56,8 +66,13 @@ export default {
     </div>
 
     <div id="tests">
-      <TestItem v-for="test in testsData" :key="test.id" v-bind="test"/>
+      <TestItem v-for="test in testsData" :key="test.id" v-bind="test" @start-test="startTestEvent"/>
     </div>
+
+    <UserNameFormModal
+        v-show="showUserNameFormModal"
+        @close-modal="showUserNameFormModal=false"
+        @submit-user-name="openTest"/>
   </div>
 </template>
 

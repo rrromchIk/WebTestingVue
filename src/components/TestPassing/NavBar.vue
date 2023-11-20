@@ -1,6 +1,9 @@
 <script>
 export default {
-  name: "NavBar"
+  name: "NavBar",
+  props: [
+      "linkToAllTests"
+  ]
 }
 </script>
 
@@ -8,7 +11,7 @@ export default {
   <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
     <a id="navbar-logo" class="navbar-brand">TestPortal</a>
     <div id="navbar-table" class="collapse navbar-collapse">
-      <a href="http://localhost:8080/all-tests" class="float-right btn btn-outline-primary">All tests</a>
+      <a :href="linkToAllTests" class="float-right btn btn-outline-primary">All tests</a>
     </div>
   </nav>
 </template>
