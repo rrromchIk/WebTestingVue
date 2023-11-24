@@ -2,6 +2,7 @@ import axios from 'axios'
 
 class UserTestDao {
     async createUserTest(userId, testId) {
+        console.log("Create user test: {userId:" + userId + ", testId:" + testId + "}" )
         try {
             const response =
                 await axios.post("https://localhost:7003/api/users/tests", {userId: userId, testId: testId});
@@ -13,11 +14,12 @@ class UserTestDao {
                 console.error("Unexpected status code:", response.status);
             }
         } catch (error) {
-            console.error("Error creating user:", error.toString());
+            console.error("Error creating user test:", error.toString());
         }
     }
 
     async getUserTest(userId, testId) {
+        console.log("Get user test: {userId:" + userId + ", testId:" + testId + "}")
         try {
             return await axios.get("https://localhost:7003/api/users/tests/" + userId + "/" + testId);
         } catch (error) {
@@ -26,6 +28,7 @@ class UserTestDao {
     }
 
     async getUserTests(userId) {
+        console.log("Get tests for userId: " + userId)
         try {
             return await axios.get("https://localhost:7003/api/users/tests/" + userId);
         } catch (error) {

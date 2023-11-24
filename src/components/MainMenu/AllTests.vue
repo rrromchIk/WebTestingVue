@@ -13,6 +13,7 @@ export default {
   },
   data() {
     return {
+      passTestPage: process.env.VUE_APP_PASS_TEST_PAGE,
       testsData: [],
       showUserNameFormModal: false,
       testToOpenId: null
@@ -27,11 +28,12 @@ export default {
       this.testsData = response.data;
     },
     sortBy(criteria) {
+      console.log("Sorting tests by: " + criteria)
       this.testsData.sort((a, b) => {
         if (criteria === 'name') {
           return a.name.localeCompare(b.name);
         } else if (criteria === 'difficulty') {
-          const difficultyOrder = { 'easy': 1, 'medium': 2, 'hard': 3 };
+          const difficultyOrder = {'easy': 1, 'medium': 2, 'hard': 3};
           return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
         } else if (criteria === 'numOfQuestions') {
           return a.questions.length - b.questions.length;
@@ -40,14 +42,18 @@ export default {
         }
       });
     },
-    startTestEvent(testId) {
+    startTestHandler(testId) {
+      console.log("Start test handler")
+
       this.showUserNameFormModal = true;
       this.testToOpenId = testId;
     },
-    async openTest(userName) {
+    async openTestHandler(userName) {
+      console.log("Open test with userName: " + userName);
+
       const userId = await UserDao.createUser(userName);
       await UserTestDao.createUserTest(userId, this.testToOpenId);
-      window.open('http://localhost:8080/pass-test?testId=' + this.testToOpenId + '&userId=' + userId, "_self")
+      window.open(this.passTestPage + '?testId=' + this.testToOpenId + '&userId=' + userId, "_self")
     }
   }
 }
@@ -66,13 +72,17 @@ export default {
     </div>
 
     <div id="tests">
-      <TestItem v-for="test in testsData" :key="test.id" v-bind="test" @start-test="startTestEvent"/>
+      <TestItem
+          v-for="test in testsData"
+          :key="test.id"
+          v-bind="test"
+          @start-test="startTestHandler"/>
     </div>
 
     <UserNameFormModal
         v-show="showUserNameFormModal"
         @close-modal="showUserNameFormModal=false"
-        @submit-user-name="openTest"/>
+        @submit-user-name="openTestHandler"/>
   </div>
 </template>
 
@@ -83,6 +93,7 @@ export default {
   flex-flow: column;
   align-items: center;
 }
+
 #tests {
   display: grid;
   width: 70vw;
@@ -131,7 +142,7 @@ a:hover {
   cursor: pointer;
 }
 
-.card{
+.card {
   opacity: 94%;
 }
 </style>

@@ -1,27 +1,30 @@
 <script>
 import TestResultItem from "@/components/TestResults/TestResultItem.vue";
-import NavBar from "@/components/TestPassing/NavBar.vue";
+import NavBar from "@/components/NavBar.vue";
 import UserTestDao from "@/service/UserTestDao";
 import moment from 'moment';
 
 export default {
   name: "AllTestsResult",
-  components: {TestResultItem, NavBar},
+  components: {
+    TestResultItem, NavBar
+  },
   data() {
     return {
       allTestsPage: process.env.VUE_APP_MAIN_PAGE,
       userTests: []
     }
   },
-  created() {
+  async created() {
     const userId = this.$route.query.userId;
-    this.fetchUserTestsData(userId);
+    await this.fetchUserTestsData(userId);
+    this.changeDateFormat();
   },
   methods: {
     async fetchUserTestsData(userId) {
       const response = await UserTestDao.getUserTests(userId);
       this.userTests = response.data;
-      this.changeDateFormat();
+
     },
     changeDateFormat() {
       this.userTests.forEach(ut => {
@@ -36,7 +39,7 @@ export default {
 <template>
   <NavBar :link-to-all-tests="allTestsPage"/>
 
-  <div id="all-tests">
+  <div id="all-tests-result">
     <div id="tests">
       <TestResultItem v-for="userTest in userTests"
                       :key="userTest.testId"
@@ -44,7 +47,7 @@ export default {
                       :subject="userTest.test.subject"
                       :difficulty="userTest.test.difficulty"
                       :startingTime="userTest.startingTime"
-                      :endingTime="userTest.status == 'completed' ? userTest.endingTime : 'not completed'"
+                      :endingTime="userTest.status === 'completed' ? userTest.endingTime : 'not completed'"
                       :result="userTest.result"
       />
     </div>
@@ -52,7 +55,7 @@ export default {
 </template>
 
 <style scoped>
-#all-tests {
+#all-tests-result {
   display: flex;
   flex-wrap: wrap;
   flex-flow: column;

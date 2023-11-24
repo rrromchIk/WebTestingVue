@@ -2,6 +2,7 @@ import axios from 'axios'
 
 class UserDao {
     async createUser(userName) {
+        console.log("Create user with userName: " + userName);
         try {
             const response =
                 await axios.post("https://localhost:7003/api/users", {name: userName});
@@ -20,6 +21,7 @@ class UserDao {
     }
 
     async getUserById(userId) {
+        console.log("Get user by id: " + userId);
         try {
             return await axios.get("https://localhost:7003/api/users/" + userId);
         } catch (error) {

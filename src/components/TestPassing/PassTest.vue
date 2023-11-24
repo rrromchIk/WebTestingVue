@@ -1,10 +1,11 @@
 <script>
 import TimerItem from "@/components/TestPassing/TimerItem.vue";
 import QuestionItem from "@/components/TestPassing/QuestionItem.vue";
-import NavBar from "@/components/TestPassing/NavBar.vue";
+import NavBar from "@/components/NavBar.vue";
 import QuestionsSidebar from "@/components/TestPassing/QuestionsSidebar.vue";
 import TestDao from "@/service/TestDao";
 import UserTestDao from "@/service/UserTestDao";
+import UserAnswerDao from "@/service/UserAnswerDao";
 
 export default {
   name: "PassTest",
@@ -14,18 +15,21 @@ export default {
   data() {
     return {
       allTestsPage: process.env.VUE_APP_MAIN_PAGE,
+      userId: null,
       test: {},
       userTest: {},
-      currentQuestion: {}
+      currentQuestion: {},
+      remainingTime: -1
     }
   },
-  beforeMount() {
+  async created() {
     const testId = this.$route.query.testId;
-    const userId = this.$route.query.userId;
-    this.fetchTestData(testId);
-    this.fetchUserTestData(userId, testId);
-    console.log(this.test);
-    console.log(this.userTest);
+    this.userId = this.$route.query.userId;
+
+    await this.fetchTestData(testId);
+    await this.fetchUserTestData(this.userId, testId);
+
+    this.calculateRemainingTime();
   },
   methods: {
     async fetchTestData(testId) {
@@ -37,12 +41,28 @@ export default {
       const response = await UserTestDao.getUserTest(userId, testId);
       this.userTest = response.data;
     },
-    timeOut() {
+    calculateRemainingTime() {
+      const testDurationMillis = this.test.duration * 60 * 1000;
+      const startingTimeMillis = new Date(this.userTest.startingTime).getTime();
+      const currentTimeMillis = new Date().getTime();
+      const limitTimeMillis = startingTimeMillis + testDurationMillis;
+
+      this.remainingTime = limitTimeMillis - currentTimeMillis;
+    },
+    submitAnswerHandler(questionAnswerId) {
+      UserAnswerDao.createUserAnswer(this.userId, questionAnswerId.questionId, questionAnswerId.answerId);
+    },
+    timeOutHandler() {
+      this.endTestHandler();
       window.open(this.allTestsPage, "_self")
     },
-    changeCurrentQuestion(newQuestion) {
+    questionChangedHandler(newQuestion) {
       this.currentQuestion = newQuestion;
-    }
+    },
+    endTestHandler() {
+      console.log("end test handler");
+    },
+
   }
 }
 </script>
@@ -51,11 +71,23 @@ export default {
   <NavBar :link-to-all-tests="allTestsPage"/>
 
   <div id="pass-test">
-    <QuestionsSidebar v-if="test.id" :questions="test.questions" @question-changed="changeCurrentQuestion"/>
-    <QuestionItem v-if="currentQuestion.text" :test-name="test.name" :question="currentQuestion"/>
-    <!--    <TimerItem v-if="test.id" :millis="test.duration * 60 * 1000"/>-->
-    <TimerItem v-if="test.id" :millis="100000" @time-out="timeOut"/>
+    <QuestionsSidebar
+        v-if="test.id"
+        :questions="test.questions"
+        @question-changed="questionChangedHandler"/>
 
+    <QuestionItem
+        v-if="currentQuestion.id"
+        :user-id="userId"
+        :test-name="test.name"
+        :question="currentQuestion"
+        @submit-answer="submitAnswerHandler"
+        @end-test="endTestHandler"/>
+
+    <TimerItem
+        v-if="remainingTime !== -1"
+        :millis="remainingTime"
+        @time-out="timeOutHandler"/>
   </div>
 </template>
 

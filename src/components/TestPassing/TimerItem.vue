@@ -1,20 +1,17 @@
 <script>
 export default {
   name: "TimerItem",
-  emits: [
-      "timeOut"
-  ],
-  props: [
-      "millis"
-  ],
-  //TODO updating page
-
+  emits: ["timeOut"],
+  props: ["millis"],
   data() {
     return {
       timerHours: "00",
       timerMinutes: "00",
       timerSeconds: "00"
     }
+  },
+  created() {
+    this.startTimer();
   },
   methods: {
     startTimer() {
@@ -41,9 +38,6 @@ export default {
       this.timerMinutes = minutes < 10 ? "0" + minutes : minutes;
       this.timerSeconds = seconds < 10 ? "0" + seconds : seconds;
     },
-  },
-  mounted() {
-    this.startTimer();
   }
 }
 </script>

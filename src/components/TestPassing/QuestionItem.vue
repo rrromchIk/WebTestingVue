@@ -1,24 +1,27 @@
 <script>
 import QuestionDao from "@/service/QuestionDao";
+import UserAnswerDao from "@/service/UserAnswerDao";
 export default {
   name: "QuestionItem",
-  props: [
-    "testName", "question"
-  ],
+  emits: ["submitAnswer", "endTest"],
+  props: ["testName", "question", "userId"],
   data() {
     return {
       answers: [],
+      userAnswer: {},
       selectedAnswerId: null
     }
   },
   methods: {
     async fetchAnswers() {
-      const response = await QuestionDao.getAnswersByQuestionId(this.question.id)
+      let response = await UserAnswerDao.getUserAnswers(this.userId, this.question.id);
+      this.userAnswer = response.data;
+
+      response = await QuestionDao.getAnswersByQuestionId(this.question.id)
       this.answers = response.data;
     },
     submitAnswer() {
       if (this.selectedAnswerId !== null) {
-        console.log("submit answer: {questionId:" + this.question.id + "}, {answerId:" + this.selectedAnswerId + "}")
         this.$emit("submitAnswer", {
           questionId: this.question.id,
           answerId: this.selectedAnswerId,
@@ -27,6 +30,9 @@ export default {
         console.error("Please select an answer before submitting.");
       }
     },
+    endTest() {
+      this.$emit("endTest");
+    }
   },
   watch: {
     question: {
@@ -49,14 +55,21 @@ export default {
         <form @submit.prevent="submitAnswer">
           <div id="radio-btn-group">
             <div v-for="(answer, index) in answers" :key="index" class="answer-item">
-              <input type="radio" :id="index" name="answer" :value="answer.text" @click="selectedAnswerId=answer.id" />
+              <input type="radio"
+                     :id="index"
+                     name="answer"
+                     :value="answer.text"
+                     :checked="answer.id === userAnswer?.selectedAnswerId"
+
+              @click="selectedAnswerId=answer.id" />
               <label :for="index">{{ answer.text }}</label>
               <br/>
             </div>
           </div>
 
+
           <button type="submit" class="btn btn-primary">Submit</button>
-          <a id="endAttemptButton" href="#" class="btn btn-danger float-right">End the attempt</a>
+          <button type="button" @click="endTest" class="btn btn-danger float-right">End the attempt</button>
         </form>
       </div>
     </div>
