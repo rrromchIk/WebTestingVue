@@ -15,7 +15,7 @@ export default {
     return {
       testsData: [],
       showUserNameFormModal: false,
-      testToOpenId: ""
+      testToOpenId: null
     };
   },
   created() {

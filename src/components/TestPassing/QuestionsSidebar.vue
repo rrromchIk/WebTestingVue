@@ -1,12 +1,8 @@
 <script>
 export default {
   name: "QuestionsSidebar",
-  emits: [
-      "questionChanged"
-  ],
-  props: [
-      "questions"
-  ],
+  emits: ["questionChanged"],
+  props: ["questions"],
   data() {
     return {
       currentQuestion: this.questions[0]

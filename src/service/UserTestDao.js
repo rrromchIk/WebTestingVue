@@ -21,7 +21,15 @@ class UserTestDao {
         try {
             return await axios.get("https://localhost:7003/api/users/tests/" + userId + "/" + testId);
         } catch (error) {
-            console.error("Error fetching tests:", error.toString());
+            console.error("Error fetching user tests:", error.toString());
+        }
+    }
+
+    async getUserTests(userId) {
+        try {
+            return await axios.get("https://localhost:7003/api/users/tests/" + userId);
+        } catch (error) {
+            console.error("Error fetching user tests:", error.toString());
         }
     }
 }

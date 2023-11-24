@@ -7,13 +7,25 @@ export default {
   ],
   data() {
     return {
-      answers: []
+      answers: [],
+      selectedAnswerId: null
     }
   },
   methods: {
     async fetchAnswers() {
       const response = await QuestionDao.getAnswersByQuestionId(this.question.id)
       this.answers = response.data;
+    },
+    submitAnswer() {
+      if (this.selectedAnswerId !== null) {
+        console.log("submit answer: {questionId:" + this.question.id + "}, {answerId:" + this.selectedAnswerId + "}")
+        this.$emit("submitAnswer", {
+          questionId: this.question.id,
+          answerId: this.selectedAnswerId,
+        });
+      } else {
+        console.error("Please select an answer before submitting.");
+      }
     },
   },
   watch: {
@@ -34,10 +46,10 @@ export default {
       <div class="card-body"><h6 class="card-title">Question </h6>
         <h4 class="card-text">{{ question.text }}</h4>
         <br>
-        <form method="post" action="#">
+        <form @submit.prevent="submitAnswer">
           <div id="radio-btn-group">
             <div v-for="(answer, index) in answers" :key="index" class="answer-item">
-              <input type="radio" :id="index" name="answer" :value="answer.text" />
+              <input type="radio" :id="index" name="answer" :value="answer.text" @click="selectedAnswerId=answer.id" />
               <label :for="index">{{ answer.text }}</label>
               <br/>
             </div>

@@ -12,8 +12,8 @@ export default {
   data() {
     return {
       timerHours: "00",
-      timerMinutes: "14",
-      timerSeconds: "42"
+      timerMinutes: "00",
+      timerSeconds: "00"
     }
   },
   methods: {

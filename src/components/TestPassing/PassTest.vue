@@ -13,6 +13,7 @@ export default {
   },
   data() {
     return {
+      allTestsPage: process.env.VUE_APP_MAIN_PAGE,
       test: {},
       userTest: {},
       currentQuestion: {}
@@ -37,7 +38,7 @@ export default {
       this.userTest = response.data;
     },
     timeOut() {
-      window.open("http://localhost:8080/all-tests", "_self")
+      window.open(this.allTestsPage, "_self")
     },
     changeCurrentQuestion(newQuestion) {
       this.currentQuestion = newQuestion;
@@ -47,7 +48,7 @@ export default {
 </script>
 
 <template>
-  <NavBar link-to-all-tests="http://localhost:8080/all-tests"/>
+  <NavBar :link-to-all-tests="allTestsPage"/>
 
   <div id="pass-test">
     <QuestionsSidebar v-if="test.id" :questions="test.questions" @question-changed="changeCurrentQuestion"/>
