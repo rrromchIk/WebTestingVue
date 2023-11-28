@@ -11,6 +11,9 @@ export default {
     }
   },
   created() {
+    if(this.millis <= 0) {
+      this.$emit("timeOut");
+    }
     this.startTimer();
   },
   methods: {

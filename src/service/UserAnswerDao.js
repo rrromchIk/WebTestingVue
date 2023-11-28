@@ -5,18 +5,13 @@ class UserAnswerDao {
         try {
             console.log("Saving user answer: " + userId + " " + questionId + " " + answerId)
             const response =
-                await axios.post("https://localhost:7003/api/users/answers", {
+                await axios.post(process.env.VUE_APP_API_ENDPOINT + "/users/answers", {
                     userId: userId,
                     questionId: questionId,
                     selectedAnswerId: answerId
                 });
-
-            // Check if the status is created (HTTP status code 201)
             if (response.status === 201) {
-                console.log("User answer saved with status code 201");
                 return true;
-            } else {
-                console.error("Unexpected status code while saving user answer:", response.status);
             }
         } catch (error) {
             console.error("Error saving user answer:", error.toString());
@@ -27,11 +22,12 @@ class UserAnswerDao {
     async getUserAnswers(userId, questionId) {
         console.log("Get user answers: " + "{userId:" + userId + ", questionId:" + questionId + "}")
         try {
-            return await axios.get("https://localhost:7003/api/users/answers/" + userId + "/" + questionId);
+            const response = await axios.get(process.env.VUE_APP_API_ENDPOINT + "/users/answers/" + userId + "/" + questionId);
+            return response.data;
         } catch (error) {
             console.error("Error fetching user answers:", error.toString());
-            return [];
         }
+        return [];
     }
 }
 

@@ -5,7 +5,6 @@ import NavBar from "@/components/NavBar.vue";
 import QuestionsSidebar from "@/components/TestPassing/QuestionsSidebar.vue";
 import TestDao from "@/service/TestDao";
 import UserTestDao from "@/service/UserTestDao";
-import UserAnswerDao from "@/service/UserAnswerDao";
 
 export default {
   name: "PassTest",
@@ -15,11 +14,12 @@ export default {
   data() {
     return {
       allTestsPage: process.env.VUE_APP_MAIN_PAGE,
+      resultsPage: process.env.VUE_APP_RESULTS_PAGE,
       userId: null,
       test: {},
       userTest: {},
       currentQuestion: {},
-      remainingTime: -1
+      remainingTime: null
     }
   },
   async created() {
@@ -33,13 +33,11 @@ export default {
   },
   methods: {
     async fetchTestData(testId) {
-      const response = await TestDao.getTestById(testId);
-      this.test = response.data;
+      this.test = await TestDao.getTestById(testId);
       this.currentQuestion = this.test.questions[0];
     },
     async fetchUserTestData(userId, testId) {
-      const response = await UserTestDao.getUserTest(userId, testId);
-      this.userTest = response.data;
+      this.userTest = await UserTestDao.getUserTest(userId, testId);
     },
     calculateRemainingTime() {
       const testDurationMillis = this.test.duration * 60 * 1000;
@@ -49,20 +47,20 @@ export default {
 
       this.remainingTime = limitTimeMillis - currentTimeMillis;
     },
-    submitAnswerHandler(questionAnswerId) {
-      UserAnswerDao.createUserAnswer(this.userId, questionAnswerId.questionId, questionAnswerId.answerId);
-    },
-    timeOutHandler() {
-      this.endTestHandler();
-      window.open(this.allTestsPage, "_self")
-    },
     questionChangedHandler(newQuestion) {
       this.currentQuestion = newQuestion;
     },
-    endTestHandler() {
-      console.log("end test handler");
+    timeOutHandler() {
+       this.endTestHandler();
     },
+    async endTestHandler() {
+      console.log("end test handler");
 
+      const completed = await UserTestDao.completeTest(this.userId, this.test.id);
+      if(completed) {
+        window.open(this.resultsPage + "?userId=" + this.userId, "_self")
+      }
+    }
   }
 }
 </script>
@@ -81,11 +79,10 @@ export default {
         :user-id="userId"
         :test-name="test.name"
         :question="currentQuestion"
-        @submit-answer="submitAnswerHandler"
         @end-test="endTestHandler"/>
 
     <TimerItem
-        v-if="remainingTime !== -1"
+        v-if="remainingTime !== null"
         :millis="remainingTime"
         @time-out="timeOutHandler"/>
   </div>

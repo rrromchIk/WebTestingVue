@@ -24,8 +24,7 @@ export default {
   },
   methods: {
     async fetchTestsData() {
-      const response = await TestDao.getAllTests();
-      this.testsData = response.data;
+      this.testsData = await TestDao.getAllTests();
     },
     sortBy(criteria) {
       console.log("Sorting tests by: " + criteria)
@@ -43,7 +42,7 @@ export default {
       });
     },
     startTestHandler(testId) {
-      console.log("Start test handler")
+      console.log("Start test handler {testId: " + testId + "}")
 
       this.showUserNameFormModal = true;
       this.testToOpenId = testId;
@@ -52,8 +51,10 @@ export default {
       console.log("Open test with userName: " + userName);
 
       const userId = await UserDao.createUser(userName);
-      await UserTestDao.createUserTest(userId, this.testToOpenId);
-      window.open(this.passTestPage + '?testId=' + this.testToOpenId + '&userId=' + userId, "_self")
+      const userCreated = await UserTestDao.createUserTest(userId, this.testToOpenId);
+      if(userCreated) {
+        window.open(this.passTestPage + '?testId=' + this.testToOpenId + '&userId=' + userId, "_self")
+      }
     }
   }
 }

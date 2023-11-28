@@ -3,7 +3,7 @@ import QuestionDao from "@/service/QuestionDao";
 import UserAnswerDao from "@/service/UserAnswerDao";
 export default {
   name: "QuestionItem",
-  emits: ["submitAnswer", "endTest"],
+  emits: ["endTest"],
   props: ["testName", "question", "userId"],
   data() {
     return {
@@ -14,18 +14,12 @@ export default {
   },
   methods: {
     async fetchAnswers() {
-      let response = await UserAnswerDao.getUserAnswers(this.userId, this.question.id);
-      this.userAnswer = response.data;
-
-      response = await QuestionDao.getAnswersByQuestionId(this.question.id)
-      this.answers = response.data;
+      this.userAnswer = await UserAnswerDao.getUserAnswers(this.userId, this.question.id);
+      this.answers = await QuestionDao.getAnswersByQuestionId(this.question.id)
     },
     submitAnswer() {
       if (this.selectedAnswerId !== null) {
-        this.$emit("submitAnswer", {
-          questionId: this.question.id,
-          answerId: this.selectedAnswerId,
-        });
+        UserAnswerDao.createUserAnswer(this.userId, this.question.id, this.selectedAnswerId);
       } else {
         console.error("Please select an answer before submitting.");
       }
@@ -56,17 +50,16 @@ export default {
           <div id="radio-btn-group">
             <div v-for="(answer, index) in answers" :key="index" class="answer-item">
               <input type="radio"
-                     :id="index"
                      name="answer"
+                     :key="answer.id"
+                     :id="index"
                      :value="answer.text"
                      :checked="answer.id === userAnswer?.selectedAnswerId"
-
-              @click="selectedAnswerId=answer.id" />
+                     @click="selectedAnswerId=answer.id" />
               <label :for="index">{{ answer.text }}</label>
               <br/>
             </div>
           </div>
-
 
           <button type="submit" class="btn btn-primary">Submit</button>
           <button type="button" @click="endTest" class="btn btn-danger float-right">End the attempt</button>

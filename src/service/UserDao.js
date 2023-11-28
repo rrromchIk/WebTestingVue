@@ -5,27 +5,10 @@ class UserDao {
         console.log("Create user with userName: " + userName);
         try {
             const response =
-                await axios.post("https://localhost:7003/api/users", {name: userName});
-
-            // Check if the status is created (HTTP status code 201)
-            if (response.status === 201) {
-                const createdUserId = response.data.id;
-                return createdUserId;
-            } else {
-                console.error("Unexpected status code:", response.status);
-            }
+                await axios.post(process.env.VUE_APP_API_ENDPOINT + "/users", {name: userName});
+            return response.data.id;
         } catch (error) {
             console.error("Error creating user:", error.toString());
-        }
-
-    }
-
-    async getUserById(userId) {
-        console.log("Get user by id: " + userId);
-        try {
-            return await axios.get("https://localhost:7003/api/users/" + userId);
-        } catch (error) {
-            console.error("Error fetching user:", error.toString());
         }
     }
 }

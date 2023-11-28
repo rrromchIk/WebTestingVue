@@ -18,13 +18,12 @@ export default {
   async created() {
     const userId = this.$route.query.userId;
     await this.fetchUserTestsData(userId);
+    this.userTests.sort((a, b) => new Date(b.endingTime) - new Date(a.endingTime))
     this.changeDateFormat();
   },
   methods: {
     async fetchUserTestsData(userId) {
-      const response = await UserTestDao.getUserTests(userId);
-      this.userTests = response.data;
-
+      this.userTests = await UserTestDao.getUserTests(userId);
     },
     changeDateFormat() {
       this.userTests.forEach(ut => {
